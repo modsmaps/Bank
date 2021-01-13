@@ -1,0 +1,264 @@
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+#include <string.h>
+
+
+using namespace std;
+class User
+{
+    public :
+        char firstname [40];
+        char lastname[40];
+        char username[20];
+        char password[25];
+
+        void menu();
+        void reg();
+        void login();
+        void showBalance();
+        void sing();
+    private :
+        float balance = 0 ;
+        char teleNum[10];
+        int age ;
+        friend class Transaction ;
+
+
+
+
+};
+class Transaction
+{
+public :
+    void addBalance(float &); //ฝาก
+    void minusBalance(float &); // ถอน
+    void outputTran(); // แสดงผลหลังจากโอนเงินฝากหรือถอน
+
+
+};
+
+
+
+
+int main()
+{
+    User b1  ;
+    string c  ;
+        cout << "----------- Thai Nichi Institute Of Technology Bank System -----------"  << endl << endl
+         << "! Are you already have an acccount ? !" << endl << endl
+         << "Please type y or n (yes or no) : " ;
+
+         getline(cin,c);
+
+         if (c=="y" || c=="Y")
+         {
+             b1.login();
+         }
+        else if (c=="n" || c=="N")
+        {
+            b1.reg();
+        }
+
+
+
+
+
+    return 0;
+}
+
+
+void User::reg ()
+{
+
+    cout <<endl << endl << "Username : " ;
+    cin >> username ;
+    cout << endl;
+    cout << "Password : " ;
+    cin >> password ;
+    cout << endl;
+
+     cout  << endl << "First Name : " ;
+    cin   >> firstname ;
+    cout << endl << "Last Name : " ;
+    cin  >> lastname ;
+    cout << endl << "Age : " ;
+    cin >> age ;
+    cout << endl << "Telephone-Number : " ;
+    cin >> teleNum ;
+
+
+
+    menu();
+
+
+
+
+
+
+
+
+}
+
+void User::menu ()
+{
+    Transaction t ;
+    int userChoice ;
+
+    time_t curr_time;
+
+    curr_time =time(NULL);
+
+    char *tm = ctime(&curr_time);
+
+
+
+     system("CLS");
+     cout << endl << "                                 Thai Nichi Institute Of Technology Bank System                                                "  << endl << endl;
+    cout << "========================================================================================================================" << endl;
+    cout << "   Name : " << firstname << " " << lastname << "            Age : " << age  <<"            Balance : "  ;
+
+    showBalance();
+
+    cout  <<  "            " << tm
+          <<   "========================================================================================================================" << endl <<endl;
+
+
+
+     /*cout << " _________________________________ "<<endl
+         << "|                                 |" <<endl
+         << "|  1.Deposit                      |" << endl
+         << "|                                 |" <<endl
+         << "|  2.WithDraw                     |" ; */
+
+
+         cout << "                                                :: MAIN MENU ::                               " << endl << endl
+              << "                                          1.DEPOSIT AMOUNT                                         " << endl
+              << "                                          2.WITHDRAW AMOUNT                                         " << endl
+              << "                                          3.INTEREST CALCULATOR                                       " << endl
+              << "                                          4.EDIT ACCOUNT                                      " << endl
+              << "                                          5.Bill And Top Up                                    " << endl
+              << "                                          6.Register and Login Menu                                  " << endl
+              << "                                          7.REFRESH MENU                                 " << endl << endl << endl
+              << "                                       Select Your Choice : " ;
+        cin  >> userChoice ;
+
+
+        switch (userChoice)
+        {
+        case 1 :
+            t.addBalance(balance);
+            menu();
+            break ;
+        case 2 :
+            t.minusBalance(balance);
+            menu();
+            break ;
+        case 3 :
+            break ;
+        case 4 :
+            cout << endl << endl << "  --- Edit Account ---" ;
+            reg();
+            break ;
+        case 6 :
+            sing();
+        case 7 :
+            menu();
+
+
+        }
+
+
+
+
+}
+void Transaction::minusBalance(float &a)
+{
+    float i ;
+
+    cout << endl << "     Enter Balance You Want To Withdraw : " ;
+    cin >> i ;
+
+    a -= i ;
+
+}
+
+void Transaction::addBalance (float &a)
+{
+    float i ;
+
+    cout << endl << "     Enter Balance You Want To Deposit : " ;
+    cin >> i ;
+
+    a += i ;
+
+}
+
+void User::showBalance ()
+{
+    cout  <<  balance ;
+}
+
+void User::login ()
+{
+    char usernamever[20] ;
+    char passwordver[25] ;
+    int i = 3  , check ;
+
+while(i!=0)
+{
+    cout << endl << "Username : " ;
+    cin >> usernamever ;
+    cout << endl;
+    cout << "Password : " ;
+    cin >>passwordver ;
+
+
+
+    if ((strcmp(usernamever,username)==0) && strcmp(passwordver,password)==0)
+    {
+        i = 0 ;
+    }
+    else if ((strcmp(usernamever,username)!=0) || strcmp(passwordver,password)!=0)
+    {
+       cout << endl << "Username or Password not correct please try again you have " << i <<" attempts left !" <<endl;
+        --i ;
+    }
+
+
+
+    }
+    i=3 ;
+
+    menu();
+}
+
+void User::sing()
+{
+    system("CLS");
+    int c ;
+        cout << endl << "                                 Thai Nichi Institute Of Technology Bank System                                                "  << endl << endl
+          << "                                                :: SINGUP AND SINGIN ::                               " << endl << endl
+              << "                                          1.LOGIN                                        " << endl
+              << "                                          2.REGISTER                                        " << endl
+              << "                                          3.MENU                                       " << endl << endl <<endl
+              << "                                       Select Your Choice : " ;
+    cin >> c ;
+
+    switch (c)
+        {
+        case 1 :
+            login();
+            break;
+        case 2 :
+            reg();
+            break;
+        case 3 :
+            menu();
+            break;
+        }
+
+
+
+
+}
