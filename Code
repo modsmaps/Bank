@@ -2,6 +2,8 @@
 #include <cstdlib>
 #include <ctime>
 #include <string.h>
+#include <fstream>
+#include <windows.h>
 
 
 using namespace std;
@@ -13,15 +15,18 @@ class User
         char username[20];
         char password[25];
 
-        void menu();
-        void reg();
-        void login();
-        void showBalance();
-        void sing();
+        void menu(); // main manu
+        void reg(); // หน้า register
+        void login();// หน้า login
+        void showBalance();//แสดงค่าเงินคงเหลือ
+        void accountDetail(); // แสดงข้อมูล accout
+        void sing(); // หน้า login กับ register
+        void transfer(); // โอนเงิน (ยังไม่เสร็จ)
     private :
         float balance = 0 ;
         char teleNum[10];
         int age ;
+
         friend class Transaction ;
 
 
@@ -33,21 +38,30 @@ class Transaction
 public :
     void addBalance(float &); //ฝาก
     void minusBalance(float &); // ถอน
-    void outputTran(); // แสดงผลหลังจากโอนเงินฝากหรือถอน
+    void outputTran(float &); // แสดงผลหลังจากโอนเงินฝากหรือถอน
+    void tranHistory();
+private :
+    int checktran ;
+    float amount ;
 
 
 };
+
+void headLine () ; //ตัวหัวโปรแกรม
+void countleave(); // ตัวนับถอยหลังกลับเข้า Menu
+void clearText(); // ลบประวัติ โอนเงิน
 
 
 
 
 int main()
 {
+    clearText();
     User b1  ;
     string c  ;
-        cout << "----------- Thai Nichi Institute Of Technology Bank System -----------"  << endl << endl
-         << "! Are you already have an acccount ? !" << endl << endl
-         << "Please type y or n (yes or no) : " ;
+        headLine();
+         cout << "                                         ! Are you already have an acccount ? !" << endl << endl << endl
+         << "                                           Please type y or n (yes or no) : " ;
 
          getline(cin,c);
 
@@ -64,27 +78,37 @@ int main()
 
 
 
+
     return 0;
 }
 
 
 void User::reg ()
 {
+    system("CLS");
+    headLine();
 
-    cout <<endl << endl << "Username : " ;
+    cout << "                                                :: REGISTER ::                               " << endl << endl
+         << endl  << "                                               --Account Info--";
+    cout <<endl << endl << endl <<  "                                          Username : " ;
     cin >> username ;
     cout << endl;
-    cout << "Password : " ;
+    cout << "                                          Password : " ;
     cin >> password ;
     cout << endl;
 
-     cout  << endl << "First Name : " ;
+    system("CLS");
+    headLine();
+    cout << "                                                :: REGISTER ::                               " << endl << endl
+         << endl  << "                                             --Personally Info--";
+
+     cout  << endl << endl << endl << "                                          First Name : " ;
     cin   >> firstname ;
-    cout << endl << "Last Name : " ;
+    cout << endl << "                                          Last Name : " ;
     cin  >> lastname ;
-    cout << endl << "Age : " ;
+    cout << endl << "                                          Age : " ;
     cin >> age ;
-    cout << endl << "Telephone-Number : " ;
+    cout << endl << "                                          Telephone-Number : " ;
     cin >> teleNum ;
 
 
@@ -114,7 +138,7 @@ void User::menu ()
 
 
      system("CLS");
-     cout << endl << "                                 Thai Nichi Institute Of Technology Bank System                                                "  << endl << endl;
+     headLine();
     cout << "========================================================================================================================" << endl;
     cout << "   Name : " << firstname << " " << lastname << "            Age : " << age  <<"            Balance : "  ;
 
@@ -135,11 +159,12 @@ void User::menu ()
          cout << "                                                :: MAIN MENU ::                               " << endl << endl
               << "                                          1.DEPOSIT AMOUNT                                         " << endl
               << "                                          2.WITHDRAW AMOUNT                                         " << endl
-              << "                                          3.INTEREST CALCULATOR                                       " << endl
-              << "                                          4.EDIT ACCOUNT                                      " << endl
-              << "                                          5.Bill And Top Up                                    " << endl
-              << "                                          6.Register and Login Menu                                  " << endl
-              << "                                          7.REFRESH MENU                                 " << endl << endl << endl
+              << "                                          3.TRANSFER                                      " << endl
+              << "                                          4.TRANSACTION HISTORY                                      " << endl
+              << "                                          5.CREATE NEW ACCOUNT                                     " << endl
+              << "                                          6.ACCOUNT DETAILS                                  " << endl
+              << "                                          7.REGISTER AND LOGIN MENU                                 " << endl
+              << "                                          8.EXIT                                 " << endl << endl << endl
               << "                                       Select Your Choice : " ;
         cin  >> userChoice ;
 
@@ -148,7 +173,7 @@ void User::menu ()
         {
         case 1 :
             t.addBalance(balance);
-            menu();
+             menu();
             break ;
         case 2 :
             t.minusBalance(balance);
@@ -157,13 +182,23 @@ void User::menu ()
         case 3 :
             break ;
         case 4 :
+            t.tranHistory();
+            menu();
+            break;
+        case 5 :
             cout << endl << endl << "  --- Edit Account ---" ;
             reg();
             break ;
         case 6 :
-            sing();
-        case 7 :
+            accountDetail();
             menu();
+            break;
+        case 7 :
+            sing();
+            break;
+        case 8 :
+            clearText();
+            exit(1);
 
 
         }
@@ -174,23 +209,34 @@ void User::menu ()
 }
 void Transaction::minusBalance(float &a)
 {
-    float i ;
+
 
     cout << endl << "     Enter Balance You Want To Withdraw : " ;
-    cin >> i ;
+    cin >> amount ;
 
-    a -= i ;
+    a -= amount ;
 
+    checktran = 2 ;
+
+    outputTran(a);
 }
 
 void Transaction::addBalance (float &a)
 {
-    float i ;
+
 
     cout << endl << "     Enter Balance You Want To Deposit : " ;
-    cin >> i ;
+    cin >>amount ;
 
-    a += i ;
+    a += amount ;
+
+    checktran = 1 ;
+
+    outputTran(a);
+
+
+
+
 
 }
 
@@ -203,42 +249,49 @@ void User::login ()
 {
     char usernamever[20] ;
     char passwordver[25] ;
-    int i = 3  , check ;
+    int i = 4  ;
+
+    system("CLS");
+    headLine();
 
 while(i!=0)
 {
-    cout << endl << "Username : " ;
+
+    cout << "                                                :: LOGIN ::                               " << endl << endl
+         << endl << "                                          USERNAME : " ;
     cin >> usernamever ;
     cout << endl;
-    cout << "Password : " ;
+    cout << endl << "                                          PASSWORD : " ;
     cin >>passwordver ;
+    cout << endl;
 
 
 
     if ((strcmp(usernamever,username)==0) && strcmp(passwordver,password)==0)
     {
-        i = 0 ;
+        break;
+        menu();
     }
     else if ((strcmp(usernamever,username)!=0) || strcmp(passwordver,password)!=0)
     {
-       cout << endl << "Username or Password not correct please try again you have " << i <<" attempts left !" <<endl;
+       cout << endl << "                                          Username or Password not correct please try again you have " << i-1 <<" attempts left !                                        " <<endl;
         --i ;
     }
 
-
+        exit(1);
 
     }
-    i=3 ;
 
-    menu();
+     menu();
+
 }
 
 void User::sing()
 {
     system("CLS");
     int c ;
-        cout << endl << "                                 Thai Nichi Institute Of Technology Bank System                                                "  << endl << endl
-          << "                                                :: SINGUP AND SINGIN ::                               " << endl << endl
+        headLine();
+          cout << "                                                :: SINGUP AND SINGIN ::                               " << endl << endl
               << "                                          1.LOGIN                                        " << endl
               << "                                          2.REGISTER                                        " << endl
               << "                                          3.MENU                                       " << endl << endl <<endl
@@ -260,5 +313,150 @@ void User::sing()
 
 
 
+
+}
+
+
+void headLine ()
+{
+    cout << endl << "                                    Thai Nichi Institute Of Technology Bank System                                                "  << endl << endl ;
+}
+
+void Transaction::outputTran(float &a)
+{
+
+ time_t curr_time;
+	tm * curr_tm;
+	char date_string[100];
+	char time_string[30];
+
+	system("CLS");
+
+	headLine();
+
+	cout << "                                                :: ATM TRANSACTION ::                               " << endl << endl ;
+
+	time(&curr_time);
+	curr_tm = localtime(&curr_time);
+
+	strftime(date_string, 50, "%d/%m/%Y", curr_tm);
+	strftime(time_string,50,"%H:%M:%S",curr_tm);
+
+	switch (checktran)
+	{
+    case 1 :
+        {
+
+        cout  << endl << "                                                --- CASH DEPOSIT ---                                      " << endl ;
+         ofstream Myfile("filename.txt",ios::app);
+        Myfile << endl << "Deposit      " << date_string << "      " << time_string << "      " << amount  << "        "  << a ;
+        Myfile.close();
+
+        cout << endl << "                                                Date : " << date_string <<endl << endl
+             << "                                                Time : " << time_string << endl << endl
+             << "                                                Amount : " << amount <<endl << endl
+             << "                                                Balance : " << a ;
+
+        break;
+        }
+    case 2 :
+        {
+
+        cout  << endl << "                                                --- CASH WITHDRAW ---                                      " << endl ;
+         ofstream Myfile("filename.txt",ios::app);
+        Myfile << endl << "WithDraw     " << date_string << "      " << time_string << "      " << amount  << "         "  << a ;
+        Myfile.close();
+
+        cout << endl << "                                                Date : " << date_string <<endl << endl
+             << "                                                Time : " << time_string << endl << endl
+             << "                                                Amount : " << amount <<endl << endl
+             << "                                                Balance : " << a ;
+        }
+	}
+
+
+	countleave();
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+void Transaction::tranHistory()
+{
+    system("CLS");
+    headLine();
+    cout << "                                                :: TRANSACTION HISTORY ::                               " << endl << endl
+         << endl <<"                          Category       Date           Time        Amount      Balance" ;
+      string mytext ;
+
+    fstream Myread("filename.txt");
+
+
+    while (getline (Myread,mytext))
+    {
+        cout  << endl <<"                          "<< mytext << endl ;
+
+    }
+
+    Myread.close();
+
+    countleave();
+
+
+}
+void User::accountDetail()
+{
+    system("CLS");
+    headLine();
+    cout << "                                                :: ACCOUNT DETAILS ::                               " << endl << endl << endl
+         << "                                                FIRST NAME : " << firstname << endl <<endl
+         << "                                                LAST  NAME : " << lastname << endl << endl
+         << "                                                       AGE : " << age <<endl<<endl
+         << "                                          Telephone NUMBER : " << teleNum << endl << endl << endl <<endl
+         << "                                                   BALANCE : " << balance << endl << endl ;
+
+
+
+    countleave();
+
+}
+void countleave ()
+{
+
+    int i ;
+
+    cout << endl << endl << endl << "                                             BACK TO THE MAIN MENU IN  ";
+    for(i=10;i>=0;--i)
+    {
+
+       if(i<=9)
+        std::cout<<i<<"\b";
+       // if(i==10)
+            //cout <<"\b \b" ;
+           // std::cout<<"\b \b";
+
+
+        Sleep(1000);
+
+
+    }
+}
+
+void clearText()
+{
+
+    ofstream cleartext("filename.txt");
+
+            cleartext << "";
 
 }
