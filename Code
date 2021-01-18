@@ -9,6 +9,7 @@
 using namespace std;
 class User
 {
+    //friend class Transaction ;
     public :
         char firstname [40];
         char lastname[40];
@@ -27,7 +28,10 @@ class User
         char teleNum[10];
         int age ;
 
-        friend class Transaction ;
+        Transaction historyTran[100]; // historyTran[numTrans].addBalance(...); ++numTrans;
+        int numTrans;
+
+
 
 
 
@@ -38,12 +42,23 @@ class Transaction
 public :
     void addBalance(float &); //ฝาก
     void minusBalance(float &); // ถอน
-    void outputTran(float &); // แสดงผลหลังจากโอนเงินฝากหรือถอน
+    void outputTran(float &); // แสดงผลหลังจากโอนเงินฝากหรือถอน     //  เรียก tdate.getstr()  ใน Class Date ต้องมี getstr ให้เรียก
+    void inputTran
     void tranHistory();
 private :
-    int checktran ;
+    int tType ;
+    Date tDate ; //
+    Time tTime ; //
     float amount ;
 
+
+};
+class Date
+{
+
+};
+class Time
+{
 
 };
 
